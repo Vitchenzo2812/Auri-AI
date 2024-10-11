@@ -2,9 +2,10 @@ import os
 import asyncio
 
 from dotenv import load_dotenv
+from hub_functions import AssistantFnc
 from livekit.agents import AutoSubscribe, JobContext, llm
 from livekit.agents.voice_assistant import VoiceAssistant
-from livekit.plugins import openai, silero, cartesia
+from livekit.plugins import openai, cartesia, silero, deepgram
 
 load_dotenv()
 CARTESIA_VOICE_ID = os.getenv("CARTESIA_VOICE_ID")
@@ -22,19 +23,22 @@ async def createAgent (ctx: JobContext):
 
   await ctx.connect(auto_subscribe=AutoSubscribe.AUDIO_ONLY)
 
+  fnc_ctx = AssistantFnc()
+
   assistant = VoiceAssistant(
-      vad=silero.VAD.load(min_silence_duration=1),
-      stt=openai.STT(language="pt"),
+      vad=silero.VAD.load(),
+      stt=deepgram.STT(language="pt-BR"),
       llm=openai.LLM(),
       tts=cartesia.TTS(
         model="sonic-multilingual",
-        language=CARTESIA_LANGUAGE,
+        language="pt",
         voice=CARTESIA_VOICE_ID
       ),
-      chat_ctx=initial_ctx
+      chat_ctx=initial_ctx,
+      fnc_ctx=fnc_ctx
   )
 
   assistant.start(ctx.room)
 
   await asyncio.sleep(1)
-  await assistant.say("Olá, como posso te ajudar hoje?", allow_interruptions=True)
+  await assistant.say(f"Olá, como posso te ajudar hoje?", allow_interruptions=True)

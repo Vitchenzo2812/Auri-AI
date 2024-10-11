@@ -1,5 +1,6 @@
 from agent import createAgent
 from livekit.agents import JobContext, WorkerOptions, cli
+from livekit.plugins import silero
 
 async def entrypoint (ctx: JobContext):
   await createAgent(ctx)
