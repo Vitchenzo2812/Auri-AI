@@ -14,23 +14,14 @@ logger.setLevel(logging.INFO)
 load_dotenv()
 CARTESIA_VOICE_ID = os.getenv("CARTESIA_VOICE_ID")
 
-async def create_agent (ctx: JobContext):
-  # Need to adjust ChatImageContext to agent function describe images
-  image_url = "https://images.unsplash.com/photo-1494145904049-0dca59b4bbad?q=80&w=1888&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-  
+async def create_agent (ctx: JobContext):  
   initial_ctx = llm.ChatContext().append(
     role="system",
     text=(
         "Você é um assistente de voz, seu nome é Auri. Sua interface com os usuários será por voz."
         "Você deve usar respostas curtas e concisas, evitando o uso de pontuações impronunciáveis."
-        "Você é um assistente voltado a acessibilidade para pessoas cegas."
+        "Você é um assistente voltado a acessibilidade para pessoas cegas e surdas."
       )
-  )
-
-  initial_ctx.append(
-    role="user",
-    text="Essa é a imagem de um prédio",
-    images=[llm.ChatImage(image=image_url)]
   )
 
   await ctx.connect(auto_subscribe=AutoSubscribe.AUDIO_ONLY)

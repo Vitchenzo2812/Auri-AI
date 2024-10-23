@@ -14,6 +14,12 @@ WEATHERSTACK_API_KEY = os.getenv("WEATHERSTACK_API_KEY")
 logger = logging.getLogger("hub ai functions")
 logger.setLevel(logging.INFO)
 
+image_links = {
+  "piso um": "https://auri-maps.s3.us-east-1.amazonaws.com/shopping-porto-piso1.jpg",
+  "piso dois": "https://auri-maps.s3.us-east-1.amazonaws.com/shopping-porto-piso2.jpg",
+  "piso três": "https://auri-maps.s3.us-east-1.amazonaws.com/shopping-porto-piso3.jpg"
+}
+
 class AgentInstructions (llm.FunctionContext):
   def __init__(self) -> None:
     super().__init__()
@@ -40,12 +46,17 @@ class AgentInstructions (llm.FunctionContext):
       except Exception as e:
         logger.error(f"Ocorreu esse erro: {e}")
 
-  @llm.ai_callable(description="Describe an image")
-  async def describe_image(self, image_url: Annotated[
+  @llm.ai_callable(description="Describe an image based on a keyword")
+  async def describe_image(self, keyword: Annotated[
     str,
-    llm.TypeInfo(description="URL of image")
+    llm.TypeInfo(description="Keyword to describe the image")
   ]):
-    logger.info(f"Describing the image... {image_url}")
+    logger.info(f"Describing image for keyword: {keyword}")
+
+    image_url = image_links.get(keyword, None)
+
+    if not image_url:
+      return f"Não encontrei uma imagem referente a palavra {keyword}"
 
     try:
       response = openai.chat.completions.create(
@@ -57,7 +68,7 @@ class AgentInstructions (llm.FunctionContext):
               { 
                 "type": "image_url",
                 "image_url": {
-                  "url": "https://images.unsplash.com/photo-1494145904049-0dca59b4bbad?q=80&w=1888&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                  "url": image_url
                 }
               }
             ]
